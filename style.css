@@ -1,0 +1,56 @@
+#mtm_settings {
+    display: flex;
+    flex-direction: column;
+}
+
+#mtm_contents {
+    field-sizing: content;
+    max-height: 50dvh;
+}
+
+#mtm_restore {
+    width: max-content;
+}
+
+label[for="mtm_run"],
+label[for="mtm_skipWIAN"] {
+    display: flex;
+    align-items: center;
+    margin: 0 !important;
+}
+
+label[for="mtm_run"] input {
+    margin-right: 10px;
+}
+
+#mtm_settings [data-summary-source="openai"] input,
+#mtm_settings [data-summary-source="openai"] label {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.mtm_contents_controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.mtm_disabled_hint {
+    margin-left: 2px;
+}
+
+#mtm_settings_block {
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
+}
+
+#mtm_popout {
+    display: flex;
+    flex-direction: column;
+    padding-top: 25px;
+}

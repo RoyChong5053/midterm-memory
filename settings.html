@@ -1,0 +1,164 @@
+<div id="mtm_settings">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <div class="flex-container alignitemscenter margin0">
+                <b>Mid-Term Memory</b>
+                <i id="mtm_popout_button" class="fa-solid fa-window-restore menu_button margin0"></i>
+            </div>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
+        <div class="inline-drawer-content">
+            <div id="mtm_drawer_contents">
+                <label for="mtm_source">Summarize with:</label>
+                <select id="mtm_source" class="text_pole">
+                    <option value="main">Main API</option>
+                    <option value="openai">OpenAI-compatible (local)</option>
+                </select><br>
+
+                <div data-summary-source="openai">
+                    <label for="mtm_api_url">API Base URL</label>
+                    <input type="text" id="mtm_api_url" class="text_pole" placeholder="http://127.0.0.1:8080">
+                    <label for="mtm_api_key">API Key (optional)</label>
+                    <input type="password" id="mtm_api_key" class="text_pole" placeholder="sk-...">
+                    <label for="mtm_model">Model (optional)</label>
+                    <input type="text" id="mtm_model" class="text_pole" placeholder="local-model">
+                    <label for="mtm_context_size">Context size (tokens, 0 = ST max)</label>
+                    <input type="number" id="mtm_context_size" class="text_pole" min="0" value="0">
+                </div>
+
+                <div class="flex-container justifyspacebetween alignitemscenter">
+                    <span>Current summary:</span>
+                    <i class="editor_maximize fa-solid fa-maximize right_menu_button" data-for="mtm_contents" title="Expand the editor"></i>
+                    <span class="flex1">&nbsp;</span>
+                    <div id="mtm_restore" class="menu_button margin0" title="Restore a previous summary; use repeatedly to clear summarization state for this chat.">
+                        <small>Restore Previous</small>
+                    </div>
+                </div>
+
+                <textarea id="mtm_contents" class="text_pole textarea_compact" rows="6" placeholder="Summary will be generated here..."></textarea>
+                <div class="mtm_contents_controls">
+                    <div id="mtm_force_summarize" data-summary-source="main,openai" class="menu_button menu_button_icon" title="Trigger a summary update right now.">
+                        <i class="fa-solid fa-database"></i>
+                        <span>Summarize now</span>
+                    </div>
+                    <div id="mtm_preview" data-summary-source="main,openai" class="menu_button menu_button_icon" title="Preview the raw timeline prompt that will be sent to the summarizer.">
+                        <i class="fa-solid fa-eye"></i>
+                        <span>Preview raw prompt</span>
+                    </div>
+                    <label for="mtm_run" title="When checked, the extension automatically summarizes the chat based on the update frequency. Uncheck to pause.">
+                        <input id="mtm_run" type="checkbox" /><span>Run</span>
+                    </label>
+                    <label data-summary-source="main" for="mtm_skipWIAN" title="Omit World Info and Author's Note from text to be summarized. Only has an effect when using the Main API.">
+                        <input id="mtm_skipWIAN" type="checkbox" />
+                        <span>No WI/AN</span>
+                    </label>
+                </div>
+                <div class="mtm_contents_controls">
+                    <div id="mtm_settings_block_toggle" class="menu_button menu_button_icon" title="Edit summarization prompt, insertion position, etc.">
+                        <i class="fa-solid fa-cog"></i>
+                        <span>Summary Settings</span>
+                    </div>
+                </div>
+                <div id="mtm_settings_block" style="display:none;">
+                    <div data-summary-source="main">
+                        <label>
+                            Prompt builder
+                        </label>
+                        <label class="checkbox_label" for="mtm_prompt_builder_raw_blocking" title="Extension will build its own timeline prompt using messages that were not summarized yet. Blocks the chat until the summary is generated.">
+                            <input id="mtm_prompt_builder_raw_blocking" type="radio" name="mtm_prompt_builder" value="1" />
+                            <span>Raw, blocking</span>
+                        </label>
+                        <label class="checkbox_label" for="mtm_prompt_builder_raw_non_blocking" title="Same timeline prompt as Raw blocking, but does not block the chat while the summary is being generated. Recommended for standalone OpenAI-compatible APIs.">
+                            <input id="mtm_prompt_builder_raw_non_blocking" type="radio" name="mtm_prompt_builder" value="2" />
+                            <span>Raw, non-blocking</span>
+                        </label>
+                        <label class="checkbox_label" id="mtm_prompt_builder_default" title="Extension will use the regular main prompt builder and add the summary request to it as the last system message.">
+                            <input id="mtm_prompt_builder_default" type="radio" name="mtm_prompt_builder" value="0" />
+                            <span>Classic, blocking</span>
+                        </label>
+                    </div>
+                    <div data-summary-source="main,openai">
+                        <label for="mtm_prompt" class="title_restorable">
+                            <span>Summary Prompt</span>
+                            <div id="mtm_prompt_restore" title="Restore default prompt" class="right_menu_button">
+                                <div class="fa-solid fa-clock-rotate-left"></div>
+                            </div>
+                        </label>
+                        <textarea id="mtm_prompt" class="text_pole textarea_compact" rows="6" placeholder="This prompt will be sent to AI to request the summary generation. &lcub;&lcub;words&rcub;&rcub; will resolve to the 'Process length' parameter."></textarea>
+                        <label for="mtm_prompt_words"><span>Process length</span> <span>(</span><span id="mtm_prompt_words_value"></span><span> words)</span></label>
+                        <input id="mtm_prompt_words" type="range" value="200" min="25" max="10000" step="25" />
+                        <label for="mtm_override_response_length">
+                            <span>API response length</span> <span>(</span><span id="mtm_override_response_length_value"></span><span> tokens)</span>
+                            <small class="mtm_disabled_hint">0 = default</small>
+                        </label>
+                        <input id="mtm_override_response_length" type="range" value="0" min="0" max="4096" step="16" />
+                        <label for="mtm_max_messages_per_request">
+                            <span>[Raw] Max messages per request</span> (<span id="mtm_max_messages_per_request_value"></span>)
+                            <small class="mtm_disabled_hint">0 = unlimited</small>
+                        </label>
+                        <input id="mtm_max_messages_per_request" type="range" value="0" min="0" max="250" step="1" />
+                        <h4 class="textAlignCenter">
+                            Update frequency
+                        </h4>
+                        <label for="mtm_prompt_interval" class="title_restorable">
+                            <span>
+                                <span>Update every</span> <span id="mtm_prompt_interval_value"></span><span> messages</span>
+                                <small class="mtm_disabled_hint">0 = disable</small>
+                            </span>
+                            <div id="mtm_prompt_interval_auto" title="Try to automatically adjust the interval based on the chat metrics." class="right_menu_button">
+                                <div class="fa-solid fa-wand-magic-sparkles"></div>
+                            </div>
+                        </label>
+                        <input id="mtm_prompt_interval" type="range" value="10" min="0" max="250" step="1" />
+                        <label for="mtm_prompt_words_force" class="title_restorable">
+                            <span>
+                                <span>Update every</span> <span id="mtm_prompt_words_force_value"></span><span> words</span>
+                                <small class="mtm_disabled_hint">0 = disable</small>
+                            </span>
+                            <div id="mtm_prompt_words_auto" title="Try to automatically adjust the interval based on the chat metrics." class="right_menu_button">
+                                <div class="fa-solid fa-wand-magic-sparkles"></div>
+                            </div>
+                        </label>
+                        <input id="mtm_prompt_words_force" type="range" value="0" min="0" max="10000" step="100" />
+                        <small>If both sliders are non-zero, then both will trigger summary updates at their respective intervals.</small>
+                        <hr>
+                    </div>
+                    <div class="mtm_template">
+                        <label for="mtm_template">Injection Template</label>
+                        <textarea id="mtm_template" class="text_pole textarea_compact" rows="2" placeholder="&lcub;&lcub;summary&rcub;&rcub; will resolve to the current summary contents."></textarea>
+                    </div>
+                    <label for="mtm_position">Injection Position</label>
+                    <label class="checkbox_label" for="mtm_include_wi_scan" title="Include the latest summary in the WI scan.">
+                        <input id="mtm_include_wi_scan" type="checkbox" />
+                        <span>Include in World Info Scanning</span>
+                    </label>
+                    <div class="radio_group">
+                        <label>
+                            <input type="radio" name="mtm_position" value="-1" />
+                            <span>None (not injected)</span>
+                            <i class="fa-solid fa-info-circle" title="The summary will not be injected into the prompt. You can still access it via the &lcub;&lcub;summary&rcub;&rcub; macro."></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="mtm_position" value="2" />
+                            <span>Before Main Prompt / Story String</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="mtm_position" value="0" />
+                            <span>After Main Prompt / Story String</span>
+                        </label>
+                        <label class="flex-container alignItemsCenter" title="How many messages before the current end of the chat.">
+                            <input type="radio" name="mtm_position" value="1" />
+                            <span>In-chat @ Depth</span> <input id="mtm_depth" class="text_pole widthUnset" type="number" min="0" max="9999" />
+                            <span>as</span>
+                            <select id="mtm_role" class="text_pole widthNatural">
+                                <option value="0">System</option>
+                                <option value="1">User</option>
+                                <option value="2">Assistant</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,12 @@
+{
+    "display_name": "Mid-Term Memory",
+    "loading_order": 9,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "RoyChong5053",
+    "version": "0.1.0",
+    "homePage": "https://github.com/RoyChong5053/midterm-memory",
+    "description": "Periodically summarizes recent chat history into a structured state log using a timeline-based raw prompt. Supports ST Main API or any OpenAI-compatible local endpoint (e.g. llama.cpp)."
+}
