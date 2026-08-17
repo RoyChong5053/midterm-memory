@@ -5,8 +5,8 @@ import {
     extractAllWords,
     isTrueBoolean,
     timestampToMoment,
-} from '../../../../utils.js';
-import { getContext, extension_settings } from '../../../../extensions.js';
+} from '../../../utils.js';
+import { getContext, extension_settings } from '../../../extensions.js';
 import {
     activateSendButtons,
     deactivateSendButtons,
@@ -25,18 +25,18 @@ import {
     streamingProcessor,
     animation_easing,
 } from '../../../../script.js';
-import { is_group_generating, selected_group } from '../../../../group-chats.js';
-import { loadMovingUIState, power_user } from '../../../../power-user.js';
-import { dragElement } from '../../../../RossAscends-mods.js';
-import { getTokenCountAsync } from '../../../../tokenizers.js';
-import { debounce_timeout } from '../../../../constants.js';
-import { SlashCommandParser } from '../../../../slash-commands/SlashCommandParser.js';
-import { SlashCommand } from '../../../../slash-commands/SlashCommand.js';
-import { ARGUMENT_TYPE, SlashCommandArgument, SlashCommandNamedArgument } from '../../../../slash-commands/SlashCommandArgument.js';
-import { commonEnumProviders } from '../../../../slash-commands/SlashCommandCommonEnumsProvider.js';
-import { macros, MacroCategory } from '../../../../macros/macro-system.js';
-import { removeReasoningFromString } from '../../../../reasoning.js';
-import { callGenericPopup, POPUP_TYPE } from '../../../../popup.js';
+import { is_group_generating, selected_group } from '../../../group-chats.js';
+import { loadMovingUIState, power_user } from '../../../power-user.js';
+import { dragElement } from '../../../RossAscends-mods.js';
+import { getTokenCountAsync } from '../../../tokenizers.js';
+import { debounce_timeout } from '../../../constants.js';
+import { SlashCommandParser } from '../../../slash-commands/SlashCommandParser.js';
+import { SlashCommand } from '../../../slash-commands/SlashCommand.js';
+import { ARGUMENT_TYPE, SlashCommandArgument, SlashCommandNamedArgument } from '../../../slash-commands/SlashCommandArgument.js';
+import { commonEnumProviders } from '../../../slash-commands/SlashCommandCommonEnumsProvider.js';
+import { macros, MacroCategory } from '../../../macros/macro-system.js';
+import { removeReasoningFromString } from '../../../reasoning.js';
+import { callGenericPopup, POPUP_TYPE } from '../../../popup.js';
 import { MacrosParser } from '/scripts/macros.js';
 
 export { MODULE_NAME };
