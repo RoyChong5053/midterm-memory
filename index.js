@@ -1089,8 +1089,9 @@ function setupListeners() {
 
 function registerSummarizeCommand() {
     if (SlashCommandParser.commands['summarize']) {
-        console.warn('[MidTermMemory] /summarize command already registered, skipping');
-        return;
+        // Overwrite any previously registered /summarize (e.g. the built-in memory
+        // extension) so this plugin's handler and settings take precedence.
+        console.warn('[MidTermMemory] /summarize command already registered, overriding it');
     }
 
     SlashCommandParser.addCommandObject(SlashCommand.fromProps({
