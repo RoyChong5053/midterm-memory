@@ -42,6 +42,7 @@ import { MacrosParser } from '/scripts/macros.js';
 export { MODULE_NAME };
 
 const MODULE_NAME = 'midterm-memory';
+const INJECT_TAG = '1_memory';
 
 if (!extension_settings[MODULE_NAME]) {
     extension_settings[MODULE_NAME] = {};
@@ -967,7 +968,7 @@ function reinsertMemory() {
  * @param {number|null} index Index of the chat message to save the summary to. If null, the pre-last message is used.
  */
 function setMemoryContext(value, saveToMessage, index = null) {
-    setExtensionPrompt(MODULE_NAME, formatMemoryValue(value), extension_settings[MODULE_NAME].position, extension_settings[MODULE_NAME].depth, extension_settings[MODULE_NAME].scan, extension_settings[MODULE_NAME].role);
+    setExtensionPrompt(INJECT_TAG, formatMemoryValue(value), extension_settings[MODULE_NAME].position, extension_settings[MODULE_NAME].depth, extension_settings[MODULE_NAME].scan, extension_settings[MODULE_NAME].role);
     $('#mtm_contents').val(value);
 
     const summaryLog = value
