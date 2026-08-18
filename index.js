@@ -43,6 +43,10 @@ export { MODULE_NAME };
 
 const MODULE_NAME = 'midterm-memory';
 
+if (!extension_settings[MODULE_NAME]) {
+    extension_settings[MODULE_NAME] = {};
+}
+
 let lastMessageHash = null;
 let lastMessageId = null;
 let inApiCall = false;
