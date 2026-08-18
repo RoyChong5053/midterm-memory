@@ -36,7 +36,6 @@ import { ARGUMENT_TYPE, SlashCommandArgument, SlashCommandNamedArgument } from '
 import { commonEnumProviders } from '../../../slash-commands/SlashCommandCommonEnumsProvider.js';
 import { macros, MacroCategory } from '../../../macros/macro-system.js';
 import { removeReasoningFromString } from '../../../reasoning.js';
-import { callGenericPopup, POPUP_TYPE } from '../../../popup.js';
 import { MacrosParser } from '/scripts/macros.js';
 
 export { MODULE_NAME };
@@ -51,6 +50,8 @@ if (!extension_settings[MODULE_NAME]) {
 let lastMessageHash = null;
 let lastMessageId = null;
 let inApiCall = false;
+let lastRawContext = '';
+let lastSummaryPrompt = '';
 
 /**
  * Count the number of tokens in the provided text.
@@ -755,6 +756,10 @@ async function summarizeChatOpenAI(context, force) {
         return null;
     }
 
+    lastRawContext = rawPrompt;
+    lastSummaryPrompt = prompt;
+    updateRawPreviewBox();
+
     try {
         inApiCall = true;
         const summary = await callOpenAISummarizeAPI(prompt, rawPrompt);
@@ -805,6 +810,12 @@ async function summarizeChatMain(context, force, skipWIAN) {
         } finally {
             inApiCall = false;
         }
+
+        // DEFAULT builder sends the whole chat; rebuild the timeline-extractor view for the preview box
+        const { rawPrompt: defaultRaw } = await getRawSummaryPrompt(context, prompt);
+        lastRawContext = defaultRaw;
+        lastSummaryPrompt = prompt;
+        updateRawPreviewBox();
     }
 
     if ([prompt_builders.RAW_BLOCKING, prompt_builders.RAW_NON_BLOCKING].includes(settings.prompt_builder)) {
@@ -816,6 +827,10 @@ async function summarizeChatMain(context, force, skipWIAN) {
             }
 
             const { rawPrompt, lastUsedIndex } = await getRawSummaryPrompt(context, prompt);
+
+            lastRawContext = rawPrompt;
+            lastSummaryPrompt = prompt;
+            updateRawPreviewBox();
 
             if (lastUsedIndex === null || lastUsedIndex === -1) {
                 if (force) {
@@ -990,14 +1005,35 @@ function setMemoryContext(value, saveToMessage, index = null) {
     }
 }
 
+function updateRawPreviewBox() {
+    if (!$('#mtm_raw_preview').length) {
+        return;
+    }
+
+    const sep = '\n\n';
+    const parts = [];
+
+    if (lastSummaryPrompt) {
+        parts.push(`[System prompt]\n${lastSummaryPrompt}`);
+    }
+
+    if (lastRawContext) {
+        parts.push(`[Context]\n${lastRawContext}`);
+    }
+
+    $('#mtm_raw_preview').val(parts.join(sep) || '(no capture yet — run a summary or click Refresh raw preview)');
+}
+
 async function onMemoryPreviewClick() {
     try {
         const context = getContext();
         const settings = extension_settings[MODULE_NAME];
         const prompt = substituteParamsExtended(settings.prompt, { words: settings.promptWords });
         const { rawPrompt } = await getRawSummaryPrompt(context, prompt);
-        console.log(`[MidTermMemory] Raw prompt preview:\n${rawPrompt}`);
-        await callGenericPopup(rawPrompt || '(empty raw prompt)', POPUP_TYPE.TEXTAREA, '', { okButton: 'Close' });
+        lastRawContext = rawPrompt;
+        lastSummaryPrompt = prompt;
+        updateRawPreviewBox();
+        console.log(`[MidTermMemory] Raw prompt preview:\n${lastSummaryPrompt}\n\n${lastRawContext}`);
     } catch (error) {
         console.error('[MidTermMemory] Failed to build raw prompt preview', error);
         toastr.error(String(error), 'Failed to preview raw prompt');

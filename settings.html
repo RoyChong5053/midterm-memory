@@ -36,14 +36,18 @@
                 </div>
 
                 <textarea id="mtm_contents" class="text_pole textarea_compact" rows="6" placeholder="Summary will be generated here..."></textarea>
+                <div style="margin-top:8px;">
+                    <span>Last raw prompt sent to API:</span>
+                    <textarea id="mtm_raw_preview" class="text_pole textarea_compact" rows="8" readonly placeholder="The system prompt + captured context sent to the summarizer will appear here after a summary runs (or click Refresh raw preview)."></textarea>
+                </div>
                 <div class="mtm_contents_controls">
                     <div id="mtm_force_summarize" data-summary-source="main,openai" class="menu_button menu_button_icon" title="Trigger a summary update right now.">
                         <i class="fa-solid fa-database"></i>
                         <span>Summarize now</span>
                     </div>
-                    <div id="mtm_preview" data-summary-source="main,openai" class="menu_button menu_button_icon" title="Preview the raw timeline prompt that will be sent to the summarizer.">
+                    <div id="mtm_preview" data-summary-source="main,openai" class="menu_button menu_button_icon" title="Rebuild the raw prompt preview from the current chat.">
                         <i class="fa-solid fa-eye"></i>
-                        <span>Preview raw prompt</span>
+                        <span>Refresh raw preview</span>
                     </div>
                     <label for="mtm_run" title="When checked, the extension automatically summarizes the chat based on the update frequency. Uncheck to pause.">
                         <input id="mtm_run" type="checkbox" /><span>Run</span>
