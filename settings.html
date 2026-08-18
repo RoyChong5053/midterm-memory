@@ -37,7 +37,10 @@
 
                 <textarea id="mtm_contents" class="text_pole textarea_compact" rows="6" placeholder="Summary will be generated here..."></textarea>
                 <div style="margin-top:8px;">
-                    <span>Last raw prompt sent to API:</span>
+                    <div class="flex-container justifyspacebetween alignitemscenter">
+                        <span>Last raw prompt sent to API:</span>
+                        <i class="editor_maximize fa-solid fa-maximize right_menu_button" data-for="mtm_raw_preview" title="Expand the editor"></i>
+                    </div>
                     <textarea id="mtm_raw_preview" class="text_pole textarea_compact" rows="8" readonly placeholder="The system prompt + captured context sent to the summarizer will appear here after a summary runs (or click Refresh raw preview)."></textarea>
                 </div>
                 <div class="mtm_contents_controls">
