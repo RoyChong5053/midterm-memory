@@ -14,6 +14,7 @@ import {
     eventSource,
     event_types,
     extension_prompt_roles,
+    extension_prompts,
     extension_prompt_types,
     generateQuietPrompt,
     is_send_press,
@@ -469,6 +470,77 @@ function onChatChanged() {
     const context = getContext();
     const latestMemory = getLatestMemoryFromChat(context.chat);
     setMemoryContext(latestMemory, false);
+}
+
+/**
+ * Re-assert the latest memory from the chat into the injected prompt.
+ * Guards against stale in-page extension_prompts when the chat's latest summary
+ * was written by another page instance or a summarization that bypassed this page.
+ */
+function syncMemoryFromChat() {
+    const settings = extension_settings[MODULE_NAME];
+
+    if (!settings.enabled) {
+        return;
+    }
+
+    if (inApiCall) {
+        return;
+    }
+
+    if (streamingProcessor && !streamingProcessor.isFinished) {
+        return;
+    }
+
+    const context = getContext();
+
+    if (!context?.chat || !context.chat.length) {
+        return;
+    }
+
+    const latestMemory = getLatestMemoryFromChat(context.chat);
+
+    if (!latestMemory) {
+        return;
+    }
+
+    if (extension_prompts?.[INJECT_TAG]?.value === formatMemoryValue(latestMemory)) {
+        return;
+    }
+
+    const contentsEl = document.getElementById('mtm_contents');
+
+    if (contentsEl && document.activeElement === contentsEl) {
+        return;
+    }
+
+    console.log('[MidTermMemory] Injection was stale; re-syncing from the latest chat memory.');
+    setMemoryContext(latestMemory, false);
+}
+
+/**
+ * Log whether the latest chat memory actually made it into the combined prompt.
+ * Fires on every generation, for cross-checking against server-side request logs.
+ */
+function logInjectedMemory(data) {
+    try {
+        const prompt = String(data?.prompt ?? '');
+        const context = getContext();
+        const latestMemory = getLatestMemoryFromChat(context?.chat ?? []);
+        const formatted = formatMemoryValue(latestMemory);
+
+        if (!formatted) {
+            console.log('[MidTermMemory] No memory to inject.');
+            return;
+        }
+
+        const promptNormalized = prompt.replace(/\s+/g, '');
+        const formattedNormalized = formatted.replace(/\s+/g, '');
+
+        console.log(`[MidTermMemory] Latest memory injected into prompt: ${promptNormalized.includes(formattedNormalized) ? 'YES' : 'NO'}`);
+    } catch (error) {
+        console.error('[MidTermMemory] Failed to check prompt injection', error);
+    }
 }
 
 async function onChatEvent() {
@@ -1209,6 +1281,16 @@ jQuery(async function () {
     for (const event of [event_types.MESSAGE_DELETED, event_types.MESSAGE_UPDATED, event_types.MESSAGE_SWIPED]) {
         eventSource.on(event, onChatEvent);
     }
+    eventSource.on(event_types.USER_MESSAGE_RENDERED, syncMemoryFromChat);
+    eventSource.on(event_types.MESSAGE_SWIPED, syncMemoryFromChat);
+    eventSource.on(event_types.MESSAGE_UPDATED, syncMemoryFromChat);
+    eventSource.on(event_types.GENERATE_AFTER_COMBINE_PROMPTS, logInjectedMemory);
+    window.addEventListener('focus', syncMemoryFromChat);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            syncMemoryFromChat();
+        }
+    });
     registerSummarizeCommand();
     registerSummaryMacro();
     console.log('[MidTermMemory] Extension loaded.');
